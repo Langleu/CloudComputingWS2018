@@ -1,0 +1,20 @@
+1. gcloud init
+
+2. ssh-keygen -t rsa -b 4096 -C “email”
+# creates a local ssh key with 4096 bit
+
+3. gcloud compute project-info add-metadata --metadata-from-file ssh-keys=$PATH
+
+4.
+#icmp
+gcloud compute firewall-rules create ICMP --allow=icmp 
+
+#ssh
+gcloud compute firewall-rules create SSH --allow tcp:22 
+
+6. gcloud compute instances create cc21 --zone europe-west3	--machine-type n1-standard-1 --image-family ubuntu-1804-uefi
+# creates a vm in Frankfurt with 1 vCPU and 3.75 GB RAM and Ubuntu
+
+7. ping $IP
+
+8. ssh $IP
