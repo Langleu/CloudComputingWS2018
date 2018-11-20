@@ -10,3 +10,6 @@ else
 	result=$(./${EXECUTABLE} | tail -1 | sed "s/[[:blank:]]\+/ /g" | cut -d " " -f 7)
 fi
 echo "$(date +%s),$result"
+
+# cronjob (every hour at minute 10)
+# 10 * * * * ./linpack.sh

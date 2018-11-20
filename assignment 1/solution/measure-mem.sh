@@ -9,3 +9,6 @@ if [ "$SYSTEMROOT" = "C:\Windows" ] ; then
 else
 	./memsweep
 fi
+
+# cronjob (every hour at minute 15)
+# 15 * * * * ./memsweep.sh

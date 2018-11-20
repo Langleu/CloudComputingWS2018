@@ -1,20 +1,25 @@
 1. gcloud init
 
-2. ssh-keygen -t rsa -b 4096 -C “email”
 # creates a local ssh key with 4096 bit
+2. ssh-keygen -t rsa -b 4096 -C “email” -f ~/.ssh/cc-key
 
-3. gcloud compute project-info add-metadata --metadata-from-file ssh-keys=$PATH
+3. gcloud compute project-info add-metadata --metadata-from-file ssh-keys=file://~/.ssh/cc-key.pub --metadata google-compute-default-region=europe-west3,google-compute-default-zone=europe-west3-a
 
 4.
-#icmp
+# icmp firewall rule
 gcloud compute firewall-rules create ICMP --allow=icmp 
 
-#ssh
+# ssh firewall rule
 gcloud compute firewall-rules create SSH --allow tcp:22 
 
-6. gcloud compute instances create cc21 --zone europe-west3	--machine-type n1-standard-1 --image-family ubuntu-1804-uefi
 # creates a vm in Frankfurt with 1 vCPU and 3.75 GB RAM and Ubuntu
+6. gcloud compute instances create cc21 --zone europe-west3	--machine-type n1-standard-1 --image-family ubuntu-1804-uefi
 
 7. ping $IP
 
-8. ssh $IP
+8. gcloud compute ssh cc21 --zone europe-west3
+# for local usage with ssh
+# gcloud compute config-ssh
+
+# stop the instance
+9. gcloud compute instances stop cc21 --zone europe-west3
