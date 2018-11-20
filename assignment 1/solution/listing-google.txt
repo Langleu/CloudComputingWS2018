@@ -1,7 +1,7 @@
 1. gcloud init
 
 # creates a local ssh key with 4096 bit
-2. ssh-keygen -t rsa -b 4096 -C “email” -f ~/.ssh/cc-key
+2. ssh-keygen -t rsa -b 4096 -C "email" -f ~/.ssh/cc-key
 
 3. gcloud compute project-info add-metadata --metadata-from-file ssh-keys=file://~/.ssh/cc-key.pub --metadata google-compute-default-region=europe-west3,google-compute-default-zone=europe-west3-a
 
