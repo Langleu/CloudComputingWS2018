@@ -18,30 +18,30 @@ rm -rf tempfile
 # conversion to KB/s
 if [[ $READ =~ 'MB/s' ]];
 then
-    TEMP=$((${READ::-5}*1000))
-    READ=$TEMP
+    TEMP=${READ::-5}
+    READ=$(echo "$TEMP*1000" | bc)
 fi
 
 if [[ $WRITE =~ 'MB/s' ]];
 then
-    TEMP=$((${WRITE::-5}*1000))
-    WRITE=$TEMP
+    TEMP=${WRITE::-5}
+    WRITE=$(echo "$TEMP*1000" | bc)
 fi
 
 if [[ $READ =~ 'GB/s' ]];
 then
-    TEMP=$((${READ::-5}*1000*1000))
-    READ=$TEMP
+    TEMP=${READ::-5}
+    READ=$(echo "$TEMP*1000*1000" | bc)
 fi
 
 if [[ $WRITE =~ 'GB/s' ]];
 then
-    TEMP=$((${WRITE::-5}*1000*1000))
-    WRITE=$TEMP
+    TEMP=${WRITE::-5}
+    WRITE=$(echo "$TEMP*1000*1000" | bc)
 fi
 
 # Prints the timestamp with read, write variable for the csv and all values in KB/s
 echo "$(date +%s),$READ,$WRITE"
 
 # cronjob (every hour at minute 5)
-# 5 * * * * ./measure-disk-sequential.sh
+# 5 * * * * ~/./measure-disk-sequential.sh >> $CSV

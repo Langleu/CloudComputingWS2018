@@ -42,3 +42,9 @@ aws ec2 authorize-security-group-ingress --group-id $GROUPID --protocol tcp --po
 
 # stop the instance
 9. aws ec2 stop-instances --instance-ids $VMID
+
+# add this line to /etc/hosts
+127.0.1.1 ip-10-0-0-50 # depending on ubuntu@ip-...
+
+# install following packages
+sudo apt-get install bc fio gcc

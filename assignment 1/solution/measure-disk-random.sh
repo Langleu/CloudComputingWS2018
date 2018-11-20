@@ -11,4 +11,4 @@ rm -rf randomFile
 echo "$(date +%s),${READWRITE::-1}" | sed 's/KB\/s//g'
 
 # cronjob (every hour at minute 0)
-# 0 * * * * ./measure-disk-random.sh
+# 0 * * * * ~/./measure-disk-random.sh >> $CSV
