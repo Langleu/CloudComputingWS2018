@@ -72,7 +72,7 @@ void main(void)
     long    arsize2d,memreq,nreps;
     size_t  malloc_arg;
 
-    arsize= 1000;
+    arsize= 500;
 
     arsize2d = (long)arsize*(long)arsize;
     memreq=arsize2d*sizeof(REAL)+(long)arsize*sizeof(REAL)+(long)arsize*sizeof(int);

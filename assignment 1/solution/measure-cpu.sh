@@ -9,7 +9,7 @@ if [ "$SYSTEMROOT" = "C:\Windows" ] ; then
 else
 	result=$(~/./linpack | tail -1 | sed "s/[[:blank:]]\+/ /g" | cut -d " " -f 7)
 fi
-echo "$(date +%s),$result"
+echo "$result"
 
 # cronjob (every hour at minute 10)
-# 10 * * * * ~/./measure-cpu.sh >> $CSV
+# 10 * * * * $(date +%s),$(~/./measure-cpu.sh) >> $CSV

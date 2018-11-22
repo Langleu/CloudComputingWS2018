@@ -14,7 +14,7 @@
 #include <time.h>
 #include <float.h>
 
-#define ARR_SIZE (8096 * 4096)
+#define ARR_SIZE (8096 * 8096)
 
 static double second(void)
 {
@@ -40,6 +40,6 @@ void main(void)
 
   gettimeofday(&tv, NULL);
   
-  printf("%lu", tv.tv_sec); 
-  printf(",%.3f\n", time);
+  //printf("%lu", tv.tv_sec); 
+  printf("%.3f\n", time);
 }
