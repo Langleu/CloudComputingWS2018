@@ -12,4 +12,4 @@ READ=$(echo "${READWRITE::-1}" | cut -f1 -d, | sed 's/KB\/s//g')
 printf "%.1f\n" $READ
 
 # cronjob (every hour at minute 0)
-# 0 * * * * $(date +%s),$(~/./measure-disk-random.sh) >> $CSV
+# 0 * * * * echo $(date +\%s),$(~/./measure-disk-random.sh) >> $CSV

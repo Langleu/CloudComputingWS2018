@@ -11,4 +11,4 @@ else
 fi
 
 # cronjob (every hour at minute 15)
-# 15 * * * * ~/./measure-mem.sh >> $CPU
+# 15 * * * * echo $(date +\%s),$(~/./measure-mem.sh) >> $CSV

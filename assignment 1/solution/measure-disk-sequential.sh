@@ -44,4 +44,4 @@ fi
 echo "$READ"
 
 # cronjob (every hour at minute 5)
-# 5 * * * * echo $(date +%s),$(~/./measure-disk-sequential.sh) >> $CSV
+# 5 * * * * echo $(date +\%s),$(~/./measure-disk-sequential.sh) >> $CSV

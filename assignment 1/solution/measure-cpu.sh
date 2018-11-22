@@ -12,4 +12,4 @@ fi
 echo "$result"
 
 # cronjob (every hour at minute 10)
-# 10 * * * * $(date +%s),$(~/./measure-cpu.sh) >> $CSV
+# 10 * * * * echo $(date +\%s),$(~/./measure-cpu.sh) >> $CSV
