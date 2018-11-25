@@ -34,7 +34,7 @@ aws ec2 authorize-security-group-ingress --group-id $GROUPID --protocol tcp --po
 6. aws ec2 run-instances --image-id ami-0f9351b59be17920e --count 1 --instance-type t2.medium --security-group-ids $SECUREID --subnet-id $SUBNET --key-name admin --associate-public-ip-address
 
 # get public ip for instance
-6.1. aws ec2 decsribe-instances
+6.1. aws ec2 describe-instances
 
 7. ping $IP
 
