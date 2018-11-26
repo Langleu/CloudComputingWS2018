@@ -1,4 +1,18 @@
-1. gcloud init
+SDK SETUP
+
+# Create environment variable for correct distribution
+export CLOUD_SDK_REPO="cloud-sdk-$(lsb_release -c -s)"
+
+# Add the Cloud SDK distribution URI as a package source
+echo "deb http://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+
+# Import the Google Cloud Platform public key
+curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+
+# Update the package list and install the Cloud SDK
+sudo apt-get update && sudo apt-get install google-cloud-sdk
+
+1. gcloud init or gcloud config set
 
 # creates a local ssh key with 4096 bit
 2. ssh-keygen -t rsa -b 4096 -C "email" -f ~/.ssh/cc-key
@@ -7,10 +21,10 @@
 
 4.
 # icmp firewall rule
-gcloud compute firewall-rules create ICMP --allow=icmp 
+gcloud compute firewall-rules create ICMP --allow=icmp
 
 # ssh firewall rule
-gcloud compute firewall-rules create SSH --allow tcp:22 
+gcloud compute firewall-rules create SSH --allow tcp:22
 
 # creates a vm in Frankfurt with 1 vCPU and 3.75 GB RAM and Ubuntu
 6. gcloud compute instances create cc21 --zone europe-west3	--machine-type n1-standard-1 --image-family ubuntu-1804-uefi
@@ -23,3 +37,4 @@ gcloud compute firewall-rules create SSH --allow tcp:22
 
 # stop the instance
 9. gcloud compute instances stop cc21 --zone europe-west3
+
