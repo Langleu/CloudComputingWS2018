@@ -1,0 +1,37 @@
+CPU benchmark questions:
+1. Look at linpack.sh and linpack.c and shortly describe how the benchmark
+works.
+
+Linpack gives result in floating point operations per second (FLOPS). It performs linear algebra computing operating on systems
+
+2. Find out what the LINPACK benchmark measures (try Google). Would you
+expect paravirtualization to affect the LINPACK benchmark? Why?
+
+The Linpack Benchmark is a measure of a computer’s floating-point rate of execution. It is determined by
+running a computer program that solves a dense system of linear equations.The linpack benchmark lists the
+performance in Mflop/s of a number of computer systems.Since these operations require dedicated access to
+host’s resources paravirtualization will have a negative effect on performance of virtualized systems.
+
+3. Look at your LINPACK measurements. Are they consistent with your
+expectations? If not, what could be the reason?
+
+
+Memory benchmark questions:
+1. Find out how the memsweep benchmark works by looking at the shell script
+and the C code. Would you expect virtualization to affect the memsweep
+benchmark? Why?
+
+Memsweep measures the required time to write and clean heap memory from different locations.The locations
+are chosen such that a cache miss occurs and data is loaded direct from memory. Since the hypervisor needs
+to communicate at HW level for memory requests we get considerably better results for memsweep in no
+virtualized systems
+
+2. Look at your memsweep measurements. Are they consistent with your
+expectations? If not, what could be the reason?
+
+Disk benchmark questions:
+1. Look at the disk measurements. Are they consistent with your expectations? If
+not, what could be the reason?
+
+2. Compare the results for the two operations (sequential, random). What are
+reasons for the differences?
