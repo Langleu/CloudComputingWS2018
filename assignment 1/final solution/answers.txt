@@ -1,0 +1,52 @@
+CPU benchmark questions:
+1. Look at linpack.sh and linpack.c and shortly describe how the benchmark works.
+
+Linpack gives result in floating point operations per second (FLOPS). It performs linear algebra computing operating on systems.
+The main functions are DGEFA and DGESL, DGEFA factors a double precision matrix by gaussian elimination and DGESL solves the double precision system with the numbers provided by DGEFA.
+According to a paper the subroutine DAXPY uses 90% of the overall time as it is used to multiply a scalar times a vector and add the results to another vector.
+
+2. Find out what the LINPACK benchmark measures (try Google). Would you expect paravirtualization to affect the LINPACK benchmark? Why?
+
+The Linpack Benchmark is a measure of a computer's floating-point rate of execution.
+It is determined by running a computer program that solves a dense system of linear equations.
+The linpack benchmark lists the performance in Mflop/s of a number of computer systems.
+Since these operations require dedicated access to host's resources paravirtualization will have a negative effect on performance of virtualized systems.
+
+3. Look at your LINPACK measurements. Are they consistent with your expectations? If not, what could be the reason?
+
+The results are somewhat consistent for each cloud provider and only differ in the 10k area for ec2 and 100k area for google.
+The reasons for the differences of 100k on google could be that it shares the host with a more cpu intensive vm and thereby gets worse results depending on the time.
+In the results of google it is visible that it went from 3 million to 2.8 over the course of 3 hours and then back up again, meaning another vm was probably processing something cpu intensive.
+What surprised me a bit is the difference between google and amazon. The peak of google is somewhere around 3 million and ec2 at around 2.1 even though the amazon machine had 2 vcores vs google with 1 vcore.
+This means that the single core provided by google has a much higher processing power than the one from amazon, but amazon would win in multi core performance.
+
+Memory benchmark questions:
+1. Find out how the memsweep benchmark works by looking at the shell script and the C code. Would you expect virtualization to affect the memsweep benchmark? Why?
+
+Memsweep measures the required time to write and clean heap memory from different locations.
+The locations are chosen such that a cache miss occurs and data is loaded directly from memory.
+Since the hypervisor needs to communicate at HW level for memory requests we get considerably better results for memsweep in non virtualized systems.
+
+2. Look at your memsweep measurements. Are they consistent with your expectations? If not, what could be the reason?
+
+The results for the memsweep measurements are very consistent and only differ in the millisecond area, meaning that the vms had over the course of 2 days no other vm using a lot of memory.
+We took amazon and google vms that are somewhat comparable with vcores and memory.
+Amazon had 4 GB RAM and google 3.75 GB RAM and I expected similiar results for both vms, but as it seems the google vm takes 50% more time to run the script.
+The reason for that could be that the RAM on google has in general slower tick rates resulting in a slower CAS Latency.
+As always google and amazon don't tell you what exactly you will get for resources and maybe we were just unlucky with our google vm.
+
+Disk benchmark questions:
+1. Look at the disk measurements. Are they consistent with your expectations? If not, what could be the reason?
+
+I expected fio to be faster than dd as fio precreates the file, but as we are only looking at the reading value I expected sequential to be faster than random due to the process how sequential reading works (less look ups than random).
+On both cloud providers sequential reading is faster than random reading even though on amazon it is only slighty faster.
+We used ebs-ssd on amazon and I expected higher results in general, as SSDs are around the 250 mb/s area and not just 69 mb/s but probably we got a rather old ssd attached to our vm and that could also explain the similiar results.
+On google on the other hand we pretty much got expected results as they are stated on here: https://cloud.google.com/compute/docs/disks/performance and also expected depending on the sequential read vs random read. (sequential much faster than random)
+
+2. Compare the results for the two operations (sequential, random). What are reasons for the differences?
+
+The reason for the difference is how sequential and random reading works.
+Sequential means that the blocks are written sequentially on the drive and can also be read in that sequence, meaning you have less look ups as the blocks are all in somewhat a linear path.
+Random on the other hand does not have these sequences as the name already suggests is random and has to lookup the blocks randomly which takes more time.
+On HDDs that was a bigger problem as you had to move the reading head to the actual position, but SSDs don't have that problem anymore due to the flash technology.
+Still random reading will have to invoke the file table more to get to the right blocks than sequential and is thereby slower than sequential. 
