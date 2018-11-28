@@ -1,3 +1,8 @@
+SDK Setup depending on OS
+quickest ones:
+ubuntu: snap install aws-cli
+mac: brew install awscli
+
 1. aws configure 
 
 # creates a local ssh key with 4096 bit

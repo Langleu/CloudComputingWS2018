@@ -40,7 +40,7 @@ then
     WRITE=$(echo "$TEMP*1000*1000" | bc)
 fi
 
-# Prints the timestamp with read variable for the csv and all values in KB/s
+# Prints the read vaue for the csv in KB/s
 echo "$READ"
 
 # cronjob (every hour at minute 5)

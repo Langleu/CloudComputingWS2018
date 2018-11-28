@@ -72,6 +72,7 @@ void main(void)
     long    arsize2d,memreq,nreps;
     size_t  malloc_arg;
 
+    /** change magic numbers to fit execution time 10-20 seconds, in this case array size */
     arsize= 500;
 
     arsize2d = (long)arsize*(long)arsize;

@@ -14,6 +14,7 @@
 #include <time.h>
 #include <float.h>
 
+/** change magic numbers to fit execution time 10-20 seconds, in this case array size */
 #define ARR_SIZE (8096 * 8096)
 
 static double second(void)

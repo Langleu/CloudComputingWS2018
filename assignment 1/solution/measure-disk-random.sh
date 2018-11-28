@@ -7,9 +7,15 @@ READWRITE="$(fio --randrepeat=1 --ioengine=libaio --direct=1 --gtod_reduce=1 --n
 # removes tempfile just in case
 rm -rf randomFile
 
-# output is timestamp, read and value in KB/s
-READ=$(echo "${READWRITE::-1}" | cut -f1 -d, | sed 's/KB\/s//g')
-printf "%.1f\n" $READ
+# output read value in KB/s
+# for fio v3 output
+READ=$(echo ${READWRITE##*=})
+TEMP=$(echo "${READ::-5}")
+echo $TEMP*1.25*1000 | bc
+
+# for fio v2 output
+#READ=$(echo "${READWRITE::-1}" | cut -f1 -d, | sed 's/KB\/s//g')
+#printf "%.1f\n" $READ
 
 # cronjob (every hour at minute 0)
 # 0 * * * * echo $(date +\%s),$(~/./measure-disk-random.sh) >> $CSV
