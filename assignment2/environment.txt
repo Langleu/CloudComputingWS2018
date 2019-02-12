@@ -1,0 +1,23 @@
+Host
+OS: macOS Mojave 10.14.1
+CPU: Intel(R) Core(TM) i7-5557U CPU @ 3.10GHz
+Cores: 2
+Threads: 4
+Features: FPU VME DE PSE TSC MSR PAE MCE CX8 APIC SEP MTRR PGE MCA CMOV PAT PSE36 CLFSH DS ACPI MMX FXSR SSE SSE2 SS HTT TM PBE SSE3 PCLMULQDQ DTES64 MON DSCPL VMX EST TM2 SSSE3 FMA CX16 TPR PDCM SSE4.1 SSE4.2 x2APIC MOVBE POPCNT AES PCID XSAVE OSXSAVE SEGLIM64 TSCTMR AVX1.0 RDRAND F16C
+Memory: 16 GB 1867 MHz DDR3
+Graphics: Intel Iris Graphics 6100 1536 MB
+Disk: 1TB SSD
+Docker Version: 2.0.0
+Docker Engine: 18.09.0
+gcc version 4.2.1
+fio version 3.12
+
+Guest
+OS: Debian Stretch (9)
+CPU: QEMU Virtual CPU Version 2.5+ @ 3.10Ghz
+Cores: 1 (even though 2 are allocated)
+Features: fpu de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pse36 clflush mmx fxsr sse sse2 syscall nx lm rep_good nopl xtopology pni cx16 hypervisor lahf_lm kaiser
+Memory: 4 GB
+Disk: 20 GB qcow2
+gcc version 6.3.0
+fio version 3.12

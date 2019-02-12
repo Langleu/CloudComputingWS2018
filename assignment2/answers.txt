@@ -1,0 +1,48 @@
+CPU benchmarking
+QEMU is by far the worst as it emulates the CPU using binary translation and other resources on software basis and is super slow therefore.
+KVM/HVF is a bit behind Docker/Native when it comes to CPU benchmarking as it uses a hypervisor to simulate hardware instead of software emulation like qemu. The hypervisor is the kvm/hvf kernel depending on the OS.
+Meaning KVM is faster than QEMU, but still behind native and docker, as docker utilizes the host kernel and hardware.
+As docker shares the host kernel and hardware the values of it are pretty similar, but still a bit behind as docker still has an abstraction layer in between for managing the resources.
+
+KVM is an abstraction of the physical hardware whereas docker uses the host kernel and hardware.
+KVM is therefore more isolated than a docker container and has also a bigger overhead than docker.
+These differences will be noticeable in all following benchmarks.
+
+Memory benchmarking
+Again, QEMU has the same problem as previously, emulating resources on software basis is just plain slow.
+Native is the quickest followed by docker, as docker uses the host kernel and hardware it is almost as fast as native, but you still have the docker layer in between due to which it is a couple of milliseconds slower.
+KVM is close to native and docker, but in the end you still just have virtualized hardware with kvm/hvf kernel.
+
+Disk benchmarking
+1.
+QEMU is again quite far in the back and I wonder how good virtualization was back in 2003 when QEMU was introduced as it was close to being unusable.
+KVM is quite far behind docker and native.
+The reason for that is that Disk I/O is handled by the hypervisor. (and apparently by the image type we have chosen // added after doing nr.2)
+Docker is close to native when it comes to write IOPS, same reasons as previously host kernel and hardware.
+
+2.
+We used qcow2 as it seemed to be the most advanced and compatible one when it comes to QEMU.
+Reading a bit further into it, it seems that raw is quicker as no metadata is associated with it.
+On the other hand, qcow2 supports snapshots, zlib compression and smaller images on the the filesystem.
+In regards to the assignment we should have probably taken raw.
+Some sources suggest to use a combination of raw and qcow2.
+There are not really and good benchmarks regarding qcow2 vs raw, but some sources say that raw provides a boost from 3mb/s to 70mb/s, but surely just speculations.
+Another source suggests that there is a 5% difference between those two.
+Anyway, raw would have been the better choice.
+
+Fork benchmarking
+QEMU is out of competition again for the same reasons as before.
+Native is again followed by Docker and followed by KVM.
+The Docker values show every now and then some peaks which could be because of the shared CPU with the host and therefore also a shared CPU Scheduler.
+KVM has more consistent values as it has dedicated resources.
+
+Nginx benchmarking
+1.
+For QEMU we adjusted the parallel calls from 12 to 2, as it felt like it will never finish, but in the end, it is still by far the worst.
+The throughput on native is by far the fastest compared to the other ones.
+Docker has pretty much half the performance compared to native and this could be explained that Docker sets up its own network.
+KVM is quite slow and also uses its own network, but maybe it is also connected to the slow IOPS, surely it was about writing but the reading IOPS are probably also quite bad.
+
+2.
+I think on docker the limiting factor is the network overlay which docker uses.
+On KVM the limiting factor definitely seems to be the disk performance as we used qcow2 instead of raw.

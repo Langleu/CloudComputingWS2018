@@ -1,0 +1,86 @@
+# for ubuntu/debian machines
+sudo apt update
+
+# docker
+# as we want to use the latest docker-ce version we add their package to our registry
+sudo apt install apt-transport-https ca-certificates curl software-properties-common
+
+# add gpg key of docker for validity
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+
+# add the repository
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable"
+
+# update registries
+sudo apt update
+
+# install latest docker-ce
+sudo apt install docker-ce
+
+# docker getting rid of typing sudo for each command
+# add current user to docker group
+sudo usermod -aG docker ${USER}
+
+# relog with current user
+su - ${USER}
+
+# qemu
+# install qemu and qemu-kvm
+sudo apt-get install qemu qemu-kvm
+
+# create blank img to install and use of size 20 GB
+# qcow2 kind of the default and quite advanced feature wise
+qemu-img create -f qcow2 debian.img 20G
+
+# get latest stable debian iso amd64
+wget https://gemmei.ftp.acc.umu.se/debian-cd/current/amd64/iso-dvd/debian-9.6.0-amd64-DVD-1.iso
+
+# start qemu vm with 4 GB RAM and installation iso 
+qemu-system-x86_64 -m 4096 -hda debian.img -cdrom debian-9.6.0-amd64-DVD-1.iso -boot d
+
+# installation left out, pretty much just setting up users and partitions
+# selected not encrypted partition, as encryption could have an additional negative effect on the disk speed
+# once setup is done shut down qemu vm
+
+# start qemu vm without booting of the cd and 4 GB of RAM
+# x86-64 Linux (i.e. 64-bit)
+qemu-system-x86_64 -m 4096 -hda debian.img -cdrom debian-9.6.0-amd64-DVD-1.iso -enable-kvm -show-cursor
+
+# without kvm just don't add the kvm flag
+qemu-system-x86_64 -m 4096 -hda debian.img -cdrom debian-9.6.0-amd64-DVD-1.iso -show-cursor
+
+# dhcp was enabled and as qemu is advanced enough it connected itself to the internet otherwise there are following workarounds:
+# network add following to the starting command
+-net nic,vlan=0,model=virtio -net user,vlan=0
+
+# alternative option
+# setting up a bridge according to either site:
+https://linuxconfig.org/install-and-set-up-kvm-on-ubuntu-18-04-bionic-beaver-linux
+https://www.linux-kvm.org/page/Networking
+
+# optional gui
+# sudo apt install libvirt-clients libvirt-daemon-system bridge-utils virt-manager
+
+# for benchmarking
+sudo apt-get install bc gcc nginx
+
+# fio self compiled and according to docs
+sudo apt-get update
+sudo apt-get install -y libaio-dev git make zlib1g-dev
+git clone https://github.com/proact-de/fio-debian.git
+cd fio-debian
+./configure && make && make install 
+
+# nginx on host/qemu (sometimes needs sudo)
+# nginx provides a static folder which saves us the hazzle of creating an extra config file
+dd if=/dev/zero of=5gb bs=1MB count=5120 && mv 5gb /var/www/html/
+# mac: /usr/local/var/www
+
+# after realising that kvm is not gonna work in a virtualbox ubuntu vm we switched to mac with hvf
+# rerann the benchmarks with mac
+# mac related
+brew install qemu
+brew install fio # was still installed from first assignment
+
+# use hvf and limit cores to 2 to equal the ubuntu vm previously used
+qemu-system-x86_64 -m 4096 -hda debian.img -cdrom debian-9.6.0-amd64-DVD-1.iso -machine accel=hvf -show-cursor -smp 2

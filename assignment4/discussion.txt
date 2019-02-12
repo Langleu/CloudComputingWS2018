@@ -1,0 +1,50 @@
+WordCount is pretty much instant with 1s and doesn't even hold enough records to evenly distribute them.
+
+Mostly ran the berlin.csv as it is smaller and quicker.
+There are in total 11404 centroids, meaning that any value less than that will be quicker.
+Ran it with k values = 1000, 2500, 5000, full which resulted in 3.5s, 5s, 7s, 11s.
+
+running it with 20 iterations instead of the initial 10 took almost double the time with 20s and used double the space.
+Meaning if the input is already big the memory could maybe not hold enough entries as the JVM is usually limited to a specified amount of memory.
+running it with 30 iterations had pretty much the same outcome, 3x the time and space.
+By adding more vms and resources to the cluster we can make the execution quicker and almost run the 30 iterations in half the time.
+
+# CellCluster
+# Which steps in your program require communication and synchronization between your workers?
+the input file is read, split into chunks of entries and distributed to the workers, meaning as soon as data comes back we need to synchronize the process again.
+Each worker applies a defined function on their set of data and then sends the data back to the master.
+The Master syncs all received data sets again and then sends them back to the workers for the next iteration.
+
+In case of CellCluster it would be as followed:
+File is read and distributed to workers -> we filter points and centroids -> back to master synced and send for the next step.
+-> iterations with calculations start -> sync with master -> immediate results back to workers for next iteration...
+last sync is when the csv shall be written.
+
+# What resources are your programs bound by? Memory? CPU? Network? Disk?
+Mostly in memory as it has to keep the entries in the RAM to access it. Writing it to disk would take to long and be not beneficial, only final output is written to disk and takes quite some time depending on the input.
+CPU/Network only partly limited to, it will still run under bad conditions, just slower.
+If we add more vms to the cluster we need to provide a good network connection otherwise we loose the benefits of running it distributed.
+If we reach the maximum in regards of memory and cpu we can add additional vms to the cluster to distribute the load better, but then depend further on the network.
+
+# Could you improve the partitioning of your data to yield better run-time?
+If it is meant as can I distribute my data in a way to achieve a better run-time, then yes.
+In case we add more workers to the cluster we can distribute our large data sets to a minimum and with technologies like 10 or 100 Gigabit Ethernet we would be only limited to the number of vms we can supply to our cluster.
+Of course syncing will also somewhat get more complex, but at least with simple data sets like we have quicker run-times will be possible.
+
+If it is meant as whether we can preprocess our data in a way to achieve better run-time, then it depends as preprocessing could actually take longer than actually just distributing them.
+Distributing the data is similiar to divide and conquer just that we on top apply a function to the divided data.
+
+
+# WordCount
+# Which steps in your program require communication and synchronization between your workers?
+Summing our entries requires sychronization.
+Master gets job, reads file -> sends sets to workers they go through each word apply regex and sent it back to the master.
+master syncs and sends result again back to the workers for the summing.
+
+# What resources are your programs bound by? Memory? CPU? Network? Disk?
+Difficult to say, but in general the same constraints as the CellCluster.
+It will be probably more difficult to actually run into those limits for WordCount, as it is much more simple.
+
+# Could you improve the partitioning of your data to yield better run-time?
+In case of preprocessing? Doubt it, 1s is already quick.
+Also more vms for bigger distribution will barely help anymore, maybe in the milliseconds.

@@ -1,0 +1,62 @@
+# configurations.json
+added 4 taskSlots as we have 8 cores and therefore enough power and default parallelism of 4.
+
+# flink-conf not needed as everything can be defined in configurations.json
+# create flink cluster with 3 emr optimized instances
+aws emr create-cluster --release-label emr-5.20.0 \
+--applications Name=Flink \
+--configurations file://./configurations.json \
+--region us-east-1 \
+--log-uri s3://langleu-cc19 \
+--instance-type m3.xlarge \
+--instance-count 3 \
+--service-role EMR_DefaultRole \
+--ec2-attributes KeyName=home,InstanceProfile=EMR_EC2_DefaultRole
+
+# create s3 bucket
+aws s3api create-bucket --bucket langleu-cc19 --region us-east-1
+
+# upload file
+aws s3 cp CellCluster.jar s3://langleu-cc19/
+aws s3 cp berlin.csv s3://langleu-cc19/
+aws s3 cp germany.csv s3://langleu-cc19/
+
+# run flink job
+aws emr add-steps --cluster-id $CLUSTER_ID \
+--steps Type=CUSTOM_JAR,Name=Flink_Transient_No_Terminate,Jar=command-runner.jar,\
+Args="flink","run","-m","yarn-cluster","-yid","application_1473169569237_0002","-yn","2",\
+"s3://langleu-cc19/CellCluster-0.1.jar",\
+"--input","s3://langleu-cc19/berlin.csv","--output","s3://langleu-cc19/berlin-cluster.csv/" \
+--region us-east-1
+
+# another way to run jars
+aws emr add-steps --cluster-id $CLUSTER_ID \
+--steps Type=CUSTOM_JAR,Name=Flink_Transient_No_Terminate,Jar=s3://langleu-cc19/CellCluster.jar,\
+Args="--input","s3://langleu-cc19/berlin.csv","--output","s3://langleu-cc19/berlin-cluster.csv/" \
+--region us-east-1
+
+# download file
+# -r might be required, because through parallelism it ends up in a folder with multiple files
+aws s3 cp s3://langleu-cc19/berlin-cluster.csv .
+
+---
+# Kubernetes
+# resource definitions https://ci.apache.org/projects/flink/flink-docs-stable/ops/deployment/kubernetes.html#session-cluster-resource-definitions
+# change replicas to 3
+# copy over .kube/config from master node to local host to be able to access the webinterface and use helm
+kubectl create -f jobmanager-service.yaml,jobmanager-deployment.yaml,taskmanager-deployment.yaml
+
+kubectl proxy
+# acces webinterface via http://localhost:8001/api/v1/namespaces/default/services/flink-jobmanager:ui/proxy
+
+# install helm
+sudo snap install helm --classic
+
+# initialize helm
+helm init
+
+# install hadoop, one replica is enough as it takes quite a bit of memory (3GB as default)
+helm install \
+--set yarn.nodeManager.resources.limits.memory=4096Mi \
+--set yarn.nodeManager.replicas=1 \
+stable/hadoop

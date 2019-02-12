@@ -1,0 +1,154 @@
+# could also just install it on node1, but wanted to try out the effect of all
+- hosts: all
+  remote_user: root
+  tasks:
+        - name: Install python openshift module on nodes
+          pip:
+            name: openshift
+
+- hosts: node1
+  run_once: true
+  remote_user: root
+  tasks:
+    - name: Create a k8s namespace
+      k8s:
+        name: cc-app
+        api_version: v1
+        kind: Namespace
+        state: present
+    - name: Create a Frontend Service object from an inline definition
+      k8s:
+        state: present
+        resource_definition:
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: cc-frontend-service
+            namespace: cc-app
+            labels:
+              service: cc-frontend-service
+          spec:
+            selector:
+              service: cc-frontend-service
+            ports:
+            - protocol: TCP
+              targetPort: 80
+              name: http
+              port: 80
+            type: NodePort
+    - name: Create a Frontend Deployment object from an inline definition
+      k8s:
+        state: present
+        resource_definition:
+          apiVersion: extensions/v1beta1
+          kind: Deployment
+          metadata:
+            labels:
+              service: cc-frontend-service
+            namespace: cc-app
+            name: cc-frontend-service
+          spec:
+            replicas: 3
+            template:
+              metadata:
+                labels:
+                  service: cc-frontend-service
+              spec:
+                containers:
+                  - name: cc-frontend-service
+                    image: langleu/frontend 
+                    ports:
+                      - containerPort: 80
+                    livenessProbe:
+                      failureThreshold: 5
+                      httpGet:
+                        path: /ready
+                        port: 80
+                        scheme: HTTP
+                        httpHeaders:
+                          - name: CC-Ready
+                            value: Frontend
+                        initialDelaySeconds: 10
+                        periodSeconds: 10
+                        successThreshold: 1
+                        timeoutSeconds: 1
+                    readinessProbe:
+                        failureThreshold: 5
+                        httpGet:
+                          path: /ready
+                          port: 80
+                          scheme: HTTP
+                          httpHeaders:
+                            - name: CC-Ready
+                              value: Frontend
+                          periodSeconds: 10
+                          successThreshold: 1
+                          timeoutSeconds: 1
+    - name: Create a Backend Service object from an inline definition
+      k8s:
+        state: present
+        resource_definition:
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: cc-backend-service
+            namespace: cc-app
+            labels:
+              service: cc-backend-service
+          spec:
+            selector:
+              service: cc-backend-service
+            ports:
+            - protocol: TCP
+              targetPort: 80
+              name: http
+              port: 80
+            type: ClusterIP
+    - name: Create a Backend Deployment object from an inline definition
+      k8s:
+        state: present
+        resource_definition:
+          apiVersion: extensions/v1beta1
+          kind: Deployment
+          metadata:
+            labels:
+              service: cc-backend-service
+            namespace: cc-app
+            name: cc-backend-service
+          spec:
+            replicas: 3
+            template:
+              metadata:
+                labels:
+                  service: cc-backend-service
+              spec:
+                containers:
+                  - name: cc-backend-service
+                    image: langleu/backend
+                    ports:
+                      - containerPort: 80
+                    livenessProbe:
+                      failureThreshold: 5
+                      httpGet:
+                        path: /ready
+                        port: 80
+                        scheme: HTTP
+                        httpHeaders:
+                          - name: CC-Ready
+                            value: Backend
+                        initialDelaySeconds: 10
+                        periodSeconds: 10
+                        successThreshold: 1
+                        timeoutSeconds: 1
+                    readinessProbe:
+                      failureThreshold: 5
+                      httpGet:
+                        path: /ready
+                        port: 80
+                        scheme: HTTP
+                        httpHeaders:
+                          - name: CC-Ready
+                            value: Backend
+                        periodSeconds: 10
+                        successThreshold: 1
+                        timeoutSeconds: 1

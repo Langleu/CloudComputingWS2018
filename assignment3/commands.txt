@@ -1,0 +1,100 @@
+#0
+# as local vms were used there was no security risk using root directly
+# prep vms, login and add ssh key to authorized_keys
+ssh langleu@192.168.85.142
+
+# login as root
+sudo su --
+
+# add key ~/.ssh/id_rsa.pub from host system
+nano ~/.ssh/authorized_keys
+
+# repeat for the other two vms
+
+#1
+# install ansible via pip with version 2.6
+# actually it is not necessary anymore and you can just use the latest ansible version
+pip install ansible==2.6
+
+# clone repository
+git clone https://github.com/kubernetes-sigs/kubespray.git
+
+# change dir
+cd kubespray
+
+# checkout release tag v2.8.1
+git checkout tags/v2.8.1
+
+# install requirements according to docs
+sudo pip install -r requirements.txt
+
+# prep hosts.ini
+# copy the folder in inventory/sample/group_vars to where the hosts.ini lies
+# also don't forget to chmod 400 ~/.ssh/id_rsa
+
+# run ansible with hosts file and cluster.yml
+ansible-playbook -i ../hosts.ini --become cluster.yml 
+
+# after installation is done, connect to any of the hosts
+# change to root
+sudo su --
+
+# small report about cluster related services
+kubectl cluster-info
+
+# returns all nodes and their roles
+kubectl get nodes
+
+#2
+# build the docker image with a given file and tag it properly
+docker build . -f frontend.Dockerfile -t langleu/frontend:latest
+docker build . -f backend.Dockerfile -t langleu/backend:latest
+
+# login with docker, will be asked for username and password
+docker login
+
+# push the images to dockerHub
+docker push langleu/frontend
+docker push langleu/backend
+
+# change from private to public repo on hub.docker.com
+
+#3
+# upgrade ansible to latest version
+pip install --upgrade ansible
+
+# go to directory containing hosts.ini
+# deploy cc-webapp.yml
+ansible-playbook -i hosts.ini cc-webapp.yml
+
+# connect to any master
+# check deployments whether pods are already available
+kubectl get deployments --namespace cc-app
+
+#4
+# connect to any master node (which is all of them)
+ssh root@192.168.85.142
+
+# scale to 4/6 replicas according to the tests
+kubectl scale --replicas=4 deployment/cc-frontend-service --namespace cc-app
+kubectl scale --replicas=6 deployment/cc-backend-service --namespace cc-app
+
+# check whether it worked and whether they are ready
+kubectl get deployments --namespace cc-app
+
+# check services to find out NodePort
+kubectl get services --namespace cc-app
+
+# entry with cc-frontend-service NodePort 80:32338/TCP
+# meaning 32338 is the port of 192.168.85.* all the master nodes
+
+# start testing on host system
+python test-deployment.py 192.168.85.142:32338 192.168.85.143:32338 192.168.85.144:32338
+
+#misc
+# in case vms were turned off, execute on all nodes or just simply as root user:
+sudo swapoff -a
+sudo service kubelet restart
+
+# quick deletion of all pods/services/deployments in a namespace
+kubectl delete -n cc-app pods,services,deployments --all
